@@ -62,6 +62,6 @@ if (args.Length > 0)
 //var gen = new UAssetScriptGenerator("/Users/bytedance/Project/kismet/UAssetCompiler/UAssetCompiler/data/Autocannon/Overclocks/OSB_Autocannon.uasset");
 //Console.WriteLine(gen.MakeScript());
 
-var gen = new UAssetJsonGenerator(@"D:\mod\DRGPacker4.27\FSD-WindowsNoEditor\FSD\Content\WeaponsNTools\PlatformGun\PRJ_PlatformMaker.uasset");
+var gen = new UAssetJsonGenerator(@"D:\mod\DRGPacker4.27\FSD-WindowsNoEditor\FSD\Content\WeaponsNTools\PlasmaCarbine\Overclocks\OSB_PlasmaCarbine.uasset");
 var json = gen.SerializeJson();
-File.WriteAllText(@"D:\mod\DRGPacker4.27\FSD-WindowsNoEditor\FSD\Content\WeaponsNTools\PlatformGun\PRJ_PlatformMaker.json", json);
+File.WriteAllText(@"D:\mod\DRGPacker4.27\FSD-WindowsNoEditor\FSD\Content\WeaponsNTools\PlasmaCarbine\Overclocks\OSB_PlasmaCarbine.json", json);

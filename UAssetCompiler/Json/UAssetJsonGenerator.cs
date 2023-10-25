@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UAssetAPI;
+using UAssetAPI.ExportTypes;
 using UAssetAPI.UnrealTypes;
 
 namespace UAssetCompiler.Json
@@ -28,8 +29,19 @@ namespace UAssetCompiler.Json
             doc.Package = "";
             doc.PackageSource = _uAsset.PackageSource;
             doc.PackageGuid = _uAsset.PackageGuid;
-            doc.Exports = _uAsset.Exports;
+            doc.Imports.Add("");
 
+            foreach (var item in _uAsset.Exports)
+            {
+                switch (item)
+                {
+                    case NormalExport normalExport:
+                        doc.Exports.Add(new UacNormalExport(normalExport));
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             return JsonConvert.SerializeObject(doc, Formatting.Indented, UnrealPackage.jsonSettings);
         }
