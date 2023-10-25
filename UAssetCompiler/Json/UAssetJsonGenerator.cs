@@ -13,25 +13,49 @@ namespace UAssetCompiler.Json
 {
     internal class UAssetJsonGenerator
     {
-
-        private UAsset _uAsset;
+        private readonly UAsset _asset;
 
         public UAssetJsonGenerator(string path)
         {
-            _uAsset = new UAsset(path, EngineVersion.VER_UE4_27);
+            _asset = new UAsset(path, EngineVersion.VER_UE4_27);
         }
 
+        
+        
+        private List<string> MakeImports()
+        {
+            var imports = new List<string>();
+    
+            foreach (var import in _asset.Imports)
+            {
+                _writer.Write($@"import ""{import.ObjectName}""(""{import.ClassPackage}/{import.ClassName}"")");
 
+                var outerIndex = import.OuterIndex;
+                if (outerIndex.Index != 0)
+                {
+                    var outerImport = GetImport(outerIndex.Index);
+                    _writer.Write($@" from ""{outerImport!.ObjectName}""");
+                }
+                else
+                {
+                    _writer.Write(@" from ""Package""");
+                }
+
+                _writer.WriteLine(@";");
+            }
+            
+            return imports;
+        }
+        
         public string SerializeJson()
         {
-
-            var doc = new UAssetJsonDocument();
-            doc.Package = "";
-            doc.PackageSource = _uAsset.PackageSource;
-            doc.PackageGuid = _uAsset.PackageGuid;
+            var doc = new UAssetJsonDocument(_asset)
+            {
+                Package = "",
+            };
             doc.Imports.Add("");
 
-            foreach (var item in _uAsset.Exports)
+            foreach (var item in _asset.Exports)
             {
                 switch (item)
                 {
@@ -45,9 +69,5 @@ namespace UAssetCompiler.Json
 
             return JsonConvert.SerializeObject(doc, Formatting.Indented, UnrealPackage.jsonSettings);
         }
-
-
-
-
     }
 }

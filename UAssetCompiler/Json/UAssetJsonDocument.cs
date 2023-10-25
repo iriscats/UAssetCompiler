@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UAssetAPI;
 using UAssetAPI.ExportTypes;
 using UAssetAPI.FieldTypes;
 using UAssetAPI.Kismet.Bytecode;
@@ -10,9 +11,15 @@ using UAssetAPI.PropertyTypes.Objects;
 
 namespace UAssetCompiler.Json
 {
-    class UAssetJsonDocument
+    public class UAssetJsonDocument
     {
-        public string Package;
+        public UAssetJsonDocument(UAsset asset)
+        {
+            PackageGuid = asset.PackageGuid;
+            PackageSource = asset.PackageSource;
+        }
+
+        public string Package = "";
 
         public Guid PackageGuid;
 
@@ -23,11 +30,10 @@ namespace UAssetCompiler.Json
         public List<string> Imports = new List<string>();
 
         public List<UacExport> Exports = new List<UacExport>();
-
     }
 
 
-    class UacExport
+    public class UacExport
     {
         public UacExport(Export export)
         {
@@ -50,30 +56,26 @@ namespace UAssetCompiler.Json
     }
 
 
-    class UacFuntionExport : UacExport
+    public class UacFunctionExport : UacExport
     {
-        public UacFuntionExport(FunctionExport functionExport) : base(functionExport)
+        public UacFunctionExport(FunctionExport functionExport) : base(functionExport)
         {
             LoadedProperties = functionExport.LoadedProperties.ToList();
             ScriptBytecode = functionExport.ScriptBytecode.ToList();
         }
-        public List<FProperty> LoadedProperties = new List<FProperty>();
 
-        public List<KismetExpression> ScriptBytecode = new List<KismetExpression>();
+        public List<FProperty> LoadedProperties;
+
+        public List<KismetExpression> ScriptBytecode;
     }
 
-    class UacNormalExport : UacExport
+    public class UacNormalExport : UacExport
     {
         public UacNormalExport(NormalExport normalExport) : base(normalExport)
         {
             Data = normalExport.Data;
         }
 
-        public List<PropertyData> Data = new List<PropertyData>();
-
+        public List<PropertyData> Data;
     }
-
-
-
-
 }
