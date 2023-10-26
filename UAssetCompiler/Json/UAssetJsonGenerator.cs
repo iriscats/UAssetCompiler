@@ -27,7 +27,6 @@ namespace UAssetCompiler.Json
             {
                 Package = "",
             };
-
         }
 
         private Import? GetImport(int index) => index > -1 ? null : _asset.Imports[index * -1 - 1];
@@ -45,6 +44,7 @@ namespace UAssetCompiler.Json
             {
                 return "[Export]" + GetExport(index)!.ObjectName.ToString();
             }
+
             return "Object";
         }
 
@@ -72,6 +72,7 @@ namespace UAssetCompiler.Json
                 {
                     continue;
                 }
+
                 imports.Add(MakeImportToken(import));
             }
 
@@ -88,23 +89,23 @@ namespace UAssetCompiler.Json
                 var name = export.ObjectName.ToString();
                 if (exportDic.ContainsKey(name))
                 {
-                    name = name + $"_{i}";
+                    name += $"_{i}";
                 }
+
                 exportDic[name] = export;
 
                 switch (export)
                 {
                     case NormalExport normalExport:
-                        {
-                            var uacExport = new UacNormalExport(normalExport);
-                            uacExport.ObjectName = name;
-                            _doc.Exports.Add(uacExport);
-                        }
+                    {
+                        var uacExport = new UacNormalExport(normalExport);
+                        uacExport.ObjectName = name;
+                        _doc.Exports.Add(uacExport);
+                    }
                         break;
                     default:
                         break;
                 }
-
             }
 
             for (int i = 0; i < _asset.Exports.Count; i++)
@@ -117,7 +118,6 @@ namespace UAssetCompiler.Json
                 uacExport.Class = IndexToToken(export.ClassIndex.Index);
                 uacExport.TemplateObject = IndexToToken(export.TemplateIndex.Index);
             }
-
         }
 
 
@@ -134,16 +134,21 @@ namespace UAssetCompiler.Json
                 FloatParseHandling = FloatParseHandling.Double,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 ContractResolver = new UAssetContractResolver(null),
-                Converters = new List<JsonConverter>(){
-                new FSignedZeroJsonConverter(),
-                new FNameJsonConverter(null),
-                new FStringTableJsonConverter(),
-                new FStringJsonConverter(),
-                new FPackageIndexJsonConverter(),
-                new StringEnumConverter(),
-                new GuidJsonConverter(),
-                new ObjectPropertyDataConverter(this),
-                new IntPropertyDataConverter()
+                Converters = new List<JsonConverter>
+                {
+                    new FSignedZeroJsonConverter(),
+                    new FNameJsonConverter(null),
+                    new FStringTableJsonConverter(),
+                    new FStringJsonConverter(),
+                    new FPackageIndexJsonConverter(),
+                    new StringEnumConverter(),
+                    new GuidJsonConverter(),
+                    new ObjectPropertyDataConverter(this),
+                    new IntPropertyDataConverter(),
+                    new BoolPropertyDataConverter(),
+                    new GuidPropertyDataConverter(),
+                    new FloatPropertyDataConverter(),
+                    new NamePropertyDataConverter()
                 }
             };
 
