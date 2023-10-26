@@ -35,30 +35,21 @@ namespace UAssetCompiler.Json
 
     public class UacExport
     {
-        public UacExport(Export export)
-        {
-            ObjectName = export.ObjectName.ToString();
-            OuterIndex = export.OuterIndex.Index;
-            ClassIndex = export.ClassIndex.Index;
-            SuperIndex = export.SuperIndex.Index;
-            TemplateIndex = export.TemplateIndex.Index;
-        }
-
         public string ObjectName;
 
-        public int OuterIndex = 0;
+        public string OuterObject;
 
-        public int ClassIndex = 0;
+        public string Class;
 
-        public int SuperIndex = 0;
+        public string SuperObject;
 
-        public int TemplateIndex = 0;
+        public string TemplateObject;
     }
 
 
     public class UacFunctionExport : UacExport
     {
-        public UacFunctionExport(FunctionExport functionExport) : base(functionExport)
+        public UacFunctionExport(FunctionExport functionExport) 
         {
             LoadedProperties = functionExport.LoadedProperties.ToList();
             ScriptBytecode = functionExport.ScriptBytecode.ToList();
@@ -71,7 +62,7 @@ namespace UAssetCompiler.Json
 
     public class UacNormalExport : UacExport
     {
-        public UacNormalExport(NormalExport normalExport) : base(normalExport)
+        public UacNormalExport(NormalExport normalExport)
         {
             Data = normalExport.Data;
         }
