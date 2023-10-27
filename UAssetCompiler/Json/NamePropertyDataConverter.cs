@@ -3,7 +3,7 @@ using UAssetAPI.PropertyTypes.Objects;
 
 namespace UAssetCompiler.Json;
 
-public class NamePropertyDataConverter: JsonConverter
+public class NamePropertyDataConverter : JsonConverter
 {
     public override bool CanRead
     {
@@ -19,8 +19,10 @@ public class NamePropertyDataConverter: JsonConverter
     {
         var namePropertyData = (NamePropertyData)obj;
         writer.WriteStartObject();
+        writer.WritePropertyName("$type");
+        writer.WriteValue(namePropertyData.GetType() + ", UAssetAPI");
         writer.WritePropertyName(namePropertyData.Name.ToString());
-        writer.WriteValue("[Name]" + namePropertyData.Value);
+        writer.WriteValue(namePropertyData.Value);
         writer.WriteEndObject();
     }
 

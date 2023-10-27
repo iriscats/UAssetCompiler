@@ -26,6 +26,8 @@ namespace UAssetCompiler.Json
         {
             var intProperty = (IntPropertyData)obj;
             writer.WriteStartObject();
+            writer.WritePropertyName("$type");
+            writer.WriteValue(intProperty.GetType() + ", UAssetAPI");
             writer.WritePropertyName(intProperty.Name.ToString());
             writer.WriteValue(intProperty.Value);
             writer.WriteEndObject();

@@ -13,6 +13,10 @@ namespace UAssetCompiler.Json
 {
     public class UAssetJsonDocument
     {
+        public UAssetJsonDocument()
+        {
+        }
+
         public UAssetJsonDocument(UAsset asset)
         {
             PackageGuid = asset.PackageGuid;
@@ -27,9 +31,9 @@ namespace UAssetCompiler.Json
 
         public int UacVersion = 1;
 
-        public List<string> Imports = new List<string>();
+        public List<string> Imports = new();
 
-        public List<UacExport> Exports = new List<UacExport>();
+        public List<UacExport> Exports = new();
     }
 
 
@@ -49,6 +53,10 @@ namespace UAssetCompiler.Json
 
     public class UacFunctionExport : UacExport
     {
+        public UacFunctionExport()
+        {
+        }
+
         public UacFunctionExport(FunctionExport functionExport) 
         {
             LoadedProperties = functionExport.LoadedProperties.ToList();
@@ -62,6 +70,10 @@ namespace UAssetCompiler.Json
 
     public class UacNormalExport : UacExport
     {
+        public UacNormalExport()
+        {
+        }
+        
         public UacNormalExport(NormalExport normalExport)
         {
             Data = normalExport.Data;

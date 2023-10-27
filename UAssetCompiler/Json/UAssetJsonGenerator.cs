@@ -120,12 +120,10 @@ namespace UAssetCompiler.Json
             }
         }
 
-
         public string SerializeJson()
         {
             MakeImports();
             MakeExports();
-
 
             JsonSerializerSettings jsonSettings = new JsonSerializerSettings
             {
@@ -153,6 +151,35 @@ namespace UAssetCompiler.Json
             };
 
             return JsonConvert.SerializeObject(_doc, Formatting.Indented, jsonSettings);
+        }
+
+        public static UAssetJsonDocument? FromJson(string json)
+        {
+            Dictionary<FName, string> toBeFilled = new Dictionary<FName, string>();
+            return JsonConvert.DeserializeObject<UAssetJsonDocument>(json, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                NullValueHandling = NullValueHandling.Include,
+                FloatParseHandling = FloatParseHandling.Double,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ContractResolver = new UAssetContractResolver(toBeFilled),
+                Converters = new List<JsonConverter>()
+                {
+                    new FSignedZeroJsonConverter(),
+                    new FNameJsonConverter(null),
+                    new FStringTableJsonConverter(),
+                    new FStringJsonConverter(),
+                    new FPackageIndexJsonConverter(),
+                    new StringEnumConverter(),
+                    new GuidJsonConverter(),
+                    new ObjectPropertyDataConverter(),
+                    new IntPropertyDataConverter(),
+                    new BoolPropertyDataConverter(),
+                    new GuidPropertyDataConverter(),
+                    new FloatPropertyDataConverter(),
+                    new NamePropertyDataConverter()
+                }
+            });
         }
     }
 }

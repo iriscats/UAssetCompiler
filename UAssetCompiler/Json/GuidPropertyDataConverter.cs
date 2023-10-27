@@ -20,8 +20,10 @@ public class GuidPropertyDataConverter : JsonConverter
     {
         var guidPropertyData = (GuidPropertyData)obj;
         writer.WriteStartObject();
+        writer.WritePropertyName("$type");
+        writer.WriteValue(guidPropertyData.GetType() + ", UAssetAPI");
         writer.WritePropertyName(guidPropertyData.Name.ToString());
-        writer.WriteValue("[Guid]" + guidPropertyData.Value);
+        writer.WriteValue(guidPropertyData.Value);
         writer.WriteEndObject();
     }
 

@@ -19,11 +19,12 @@ public class BoolPropertyDataConverter : JsonConverter
     {
         var boolPropertyData = (BoolPropertyData)obj;
         writer.WriteStartObject();
+        writer.WritePropertyName("$type");
+        writer.WriteValue(boolPropertyData.GetType() + ", UAssetAPI");
         writer.WritePropertyName(boolPropertyData.Name.ToString());
         writer.WriteValue(boolPropertyData.Value);
         writer.WriteEndObject();
     }
-
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {

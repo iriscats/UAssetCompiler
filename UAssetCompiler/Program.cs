@@ -1,8 +1,4 @@
-﻿using System.IO;
-using UAssetAPI.UnrealTypes;
-using UAssetAPI;
-using UAssetCompiler;
-using UAssetCompiler.Decompiler;
+﻿using UAssetCompiler;
 using UAssetCompiler.Json;
 
 void FileProcessMain()
@@ -65,6 +61,14 @@ var path =
 //var gen = new UAssetScriptGenerator();
 //Console.WriteLine(gen.MakeScript(path));
 
-var gen = new UAssetJsonGenerator(path);
-var json = gen.SerializeJson();
-File.WriteAllText(path + ".json", json);
+//var gen = new UAssetJsonGenerator(path);
+//var json = gen.SerializeJson();
+//File.WriteAllText(path + ".json", json);
+
+
+var json = File.ReadAllText(path + ".json");
+var doc=  UAssetJsonGenerator.FromJson(json);
+Console.WriteLine(doc);
+    
+
+

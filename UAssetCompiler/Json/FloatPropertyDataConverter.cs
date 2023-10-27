@@ -19,6 +19,8 @@ public class FloatPropertyDataConverter : JsonConverter
     {
         var floatPropertyData = (FloatPropertyData)obj;
         writer.WriteStartObject();
+        writer.WritePropertyName("$type");
+        writer.WriteValue(floatPropertyData.GetType() + ", UAssetAPI");
         writer.WritePropertyName(floatPropertyData.Name.ToString());
         writer.WriteValue(floatPropertyData.Value);
         writer.WriteEndObject();
