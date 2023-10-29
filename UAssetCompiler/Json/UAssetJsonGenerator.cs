@@ -11,6 +11,7 @@ using UAssetAPI;
 using UAssetAPI.ExportTypes;
 using UAssetAPI.JSON;
 using UAssetAPI.UnrealTypes;
+using UAssetCompiler.Json.ToConverter;
 
 namespace UAssetCompiler.Json
 {

@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <Folder Include="Compiler\" />
+      <Folder Include="Json\FromConverter\" />
     </ItemGroup>
 
 </Project>

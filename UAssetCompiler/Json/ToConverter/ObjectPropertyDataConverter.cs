@@ -1,13 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using UAssetAPI.PropertyTypes.Objects;
 
-namespace UAssetCompiler.Json
+namespace UAssetCompiler.Json.ToConverter
 {
     class ObjectPropertyDataConverter : JsonConverter
     {
