@@ -56,19 +56,19 @@ if (args.Length > 0)
 //Console.ReadKey();
 
 var path =
-    "/Users/bytedance/Project/kismet/UAssetCompiler/UAssetCompiler/data/Autocannon/Overclocks/OC_Autocannon_Neurotoxin_U.uasset";
+    "/Users/bytedance/Project/kismet/UAssetCompiler/UAssetCompiler/data/Autocannon/Overclocks/OSB_Autocannon.uasset";
 
 //var gen = new UAssetScriptGenerator();
 //Console.WriteLine(gen.MakeScript(path));
 
-//var gen = new UAssetJsonGenerator(path);
-//var json = gen.SerializeJson();
-//File.WriteAllText(path + ".json", json);
+var generator = new UAssetJsonGenerator(path);
+var json = generator.SerializeJson();
+File.WriteAllText(path + ".json", json);
 
 
-var json = File.ReadAllText(path + ".json");
-var doc=  UAssetJsonGenerator.FromJson(json);
+//var json = File.ReadAllText(path + ".json");
+var doc=  generator.FromJson(json);
 Console.WriteLine(doc);
-    
+
 
 

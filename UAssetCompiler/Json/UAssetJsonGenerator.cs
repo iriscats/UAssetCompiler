@@ -1,17 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UAssetAPI;
 using UAssetAPI.ExportTypes;
 using UAssetAPI.JSON;
 using UAssetAPI.UnrealTypes;
-using UAssetCompiler.Json.ToConverter;
+using UAssetCompiler.Json.Converter;
 
 namespace UAssetCompiler.Json
 {
@@ -19,6 +13,8 @@ namespace UAssetCompiler.Json
     {
         private readonly UAsset _asset;
         private readonly UAssetJsonDocument _doc;
+
+        public UAsset Asset => _asset;
 
         public UAssetJsonGenerator(string path)
         {
@@ -33,22 +29,52 @@ namespace UAssetCompiler.Json
         private Import? GetImport(int index) => index > -1 ? null : _asset.Imports[index * -1 - 1];
         private UacExport? GetExport(int index) => index < 1 ? null : _doc.Exports[index - 1];
 
+        private int FindImport(string token)
+        {
+            return -1;
+        }
+        
+        private int FindExport(string token)
+        {
+            return 1;
+        }
+
+        public int TokenToIndex(string token)
+        {
+            var tokenArr = token.Split(":");
+            if (tokenArr.Length < 2)
+            {
+                return 0;
+            }
+
+            if (tokenArr[0] == "Import")
+            {
+                return FindImport(tokenArr[1]);
+            }
+
+            if (tokenArr[0] == "Export")
+            {
+                return FindExport(tokenArr[1]);
+            }
+
+            throw new NotImplementedException();
+        }
 
         public string IndexToToken(int index)
         {
             if (index < 0)
             {
                 var import = GetImport(index);
-                return "[Import]" + import!.ObjectName.ToString();
+                return "Import:" + import!.ObjectName;
             }
-            else if (index > 0)
+
+            if (index > 0)
             {
-                return "[Export]" + GetExport(index)!.ObjectName.ToString();
+                return "Export:" + GetExport(index)!.ObjectName;
             }
 
             return "Object";
         }
-
 
         private string MakeImportToken(Import import)
         {
@@ -142,19 +168,14 @@ namespace UAssetCompiler.Json
                     new FPackageIndexJsonConverter(),
                     new StringEnumConverter(),
                     new GuidJsonConverter(),
-                    new ObjectPropertyDataConverter(this),
-                    new IntPropertyDataConverter(),
-                    new BoolPropertyDataConverter(),
-                    new GuidPropertyDataConverter(),
-                    new FloatPropertyDataConverter(),
-                    new NamePropertyDataConverter()
+                    new PropertyDataConverter(this, false),
                 }
             };
 
             return JsonConvert.SerializeObject(_doc, Formatting.Indented, jsonSettings);
         }
 
-        public static UAssetJsonDocument? FromJson(string json)
+        public UAssetJsonDocument? FromJson(string json)
         {
             Dictionary<FName, string> toBeFilled = new Dictionary<FName, string>();
             return JsonConvert.DeserializeObject<UAssetJsonDocument>(json, new JsonSerializerSettings
@@ -172,13 +193,7 @@ namespace UAssetCompiler.Json
                     new FStringJsonConverter(),
                     new FPackageIndexJsonConverter(),
                     new StringEnumConverter(),
-                    new GuidJsonConverter(),
-                    new ObjectPropertyDataConverter(),
-                    new IntPropertyDataConverter(),
-                    new BoolPropertyDataConverter(),
-                    new GuidPropertyDataConverter(),
-                    new FloatPropertyDataConverter(),
-                    new NamePropertyDataConverter()
+                    new PropertyDataConverter(this, true)
                 }
             });
         }
