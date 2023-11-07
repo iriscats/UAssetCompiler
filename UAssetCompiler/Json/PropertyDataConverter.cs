@@ -127,35 +127,35 @@ namespace UAssetCompiler.Json.Converter
                     return new NamePropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = new FName(_generator!.Asset, "")
+                        Value = new FName(_generator!.Asset, secondProperty.Value<string>())
                     };
 
                 case "UAssetAPI.PropertyTypes.Objects.IntPropertyData":
                     return new IntPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = 1
+                        Value = secondProperty.Value<int>()
                     };
 
                 case "UAssetAPI.PropertyTypes.Objects.BoolPropertyData":
                     return new BoolPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = true
+                        Value = secondProperty.Value<bool>()
                     };
 
                 case "UAssetAPI.PropertyTypes.Structs.GuidPropertyData":
                     return new GuidPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = new Guid()
+                        Value = new Guid(secondProperty.Value<string>()!)
                     };
 
                 case "UAssetAPI.PropertyTypes.Structs.FloatPropertyData":
                     return new FloatPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = 1.0f
+                        Value = secondProperty.Value<float>()
                     };
             }
 

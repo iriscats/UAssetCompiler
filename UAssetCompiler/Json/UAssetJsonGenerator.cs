@@ -11,7 +11,7 @@ namespace UAssetCompiler.Json
 {
     internal class UAssetJsonGenerator
     {
-        private readonly UAsset _asset;
+        private UAsset _asset;
         private readonly UAssetJsonDocument _doc;
 
         public UAsset Asset => _asset;
@@ -33,7 +33,7 @@ namespace UAssetCompiler.Json
         {
             return -1;
         }
-        
+
         private int FindExport(string token)
         {
             return 1;
@@ -76,7 +76,7 @@ namespace UAssetCompiler.Json
             return "Object";
         }
 
-        private string MakeImportToken(Import import)
+        private string ImportToToken(Import import)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append($"{import.ObjectName}({import.ClassName})");
@@ -88,8 +88,25 @@ namespace UAssetCompiler.Json
             return builder.ToString();
         }
 
+        private Import TokenToImport(string token)
+        {
+            
+            
+            return new Import(
+                new FName(_asset, ""),
+                new FName(_asset, ""),
+                new FPackageIndex(0),
+                new FName(_asset, ""),
+                false
+            );
+        }
 
-        private void MakeImports()
+        private Export TokenToExport(UacExport token)
+        {
+            return new Export(_asset, null);
+        }
+
+        private void ImportToJson()
         {
             var imports = new List<string>();
 
@@ -100,14 +117,13 @@ namespace UAssetCompiler.Json
                     continue;
                 }
 
-                imports.Add(MakeImportToken(import));
+                imports.Add(ImportToToken(import));
             }
 
             _doc.Imports = imports;
         }
 
-
-        private void MakeExports()
+        private void ExportToJson()
         {
             var exportDic = new Dictionary<string, Export>();
             for (int i = 0; i < _asset.Exports.Count; i++)
@@ -147,10 +163,28 @@ namespace UAssetCompiler.Json
             }
         }
 
+        private void JsonToImport(string json)
+        {
+            var doc = JsonConvert.DeserializeObject<UAssetJsonDocument>(json);
+            foreach (var import in doc!.Imports)
+            {
+                _asset.Imports.Add(TokenToImport(import));
+            }
+        }
+
+        private void JsonToExport(string json)
+        {
+            var doc = JsonConvert.DeserializeObject<UAssetJsonDocument>(json);
+            foreach (var export in doc!.Exports)
+            {
+                _asset.Exports.Add(TokenToExport(export));
+            }
+        }
+
         public string SerializeJson()
         {
-            MakeImports();
-            MakeExports();
+            ImportToJson();
+            ExportToJson();
 
             JsonSerializerSettings jsonSettings = new JsonSerializerSettings
             {
@@ -175,10 +209,15 @@ namespace UAssetCompiler.Json
             return JsonConvert.SerializeObject(_doc, Formatting.Indented, jsonSettings);
         }
 
-        public UAssetJsonDocument? FromJson(string json)
+        public UAsset FromJson(string json)
         {
+            _asset = new UAsset(EngineVersion.VER_UE4_27);
+
+            JsonToImport(json);
+            JsonToExport(json);
+
             Dictionary<FName, string> toBeFilled = new Dictionary<FName, string>();
-            return JsonConvert.DeserializeObject<UAssetJsonDocument>(json, new JsonSerializerSettings
+            var doc = JsonConvert.DeserializeObject<UAssetJsonDocument>(json, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,
                 NullValueHandling = NullValueHandling.Include,
@@ -196,6 +235,8 @@ namespace UAssetCompiler.Json
                     new PropertyDataConverter(this, true)
                 }
             });
+
+            return Asset;
         }
     }
 }
