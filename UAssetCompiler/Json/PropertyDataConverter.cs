@@ -67,7 +67,7 @@ namespace UAssetCompiler.Json.Converter
         {
             writer.WriteStartObject();
             writer.WritePropertyName("$type");
-            writer.WriteValue(obj!.GetType().ToString());
+            writer.WriteValue(obj!.GetType().Name);
             switch (obj)
             {
                 case ObjectPropertyData objectPropertyData:
@@ -115,7 +115,7 @@ namespace UAssetCompiler.Json.Converter
 
             switch (typeName)
             {
-                case "UAssetAPI.PropertyTypes.Objects.ObjectPropertyData":
+                case "ObjectPropertyData":
                     var index = _generator!.TokenToIndex(secondProperty.Value.ToString());
                     return new ObjectPropertyData
                     {
@@ -123,39 +123,39 @@ namespace UAssetCompiler.Json.Converter
                         Value = new FPackageIndex(index)
                     };
 
-                case "UAssetAPI.PropertyTypes.Objects.NamePropertyData":
+                case "NamePropertyData":
                     return new NamePropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
                         Value = new FName(_generator!.Asset, secondProperty.Value<string>())
                     };
 
-                case "UAssetAPI.PropertyTypes.Objects.IntPropertyData":
+                case "IntPropertyData":
                     return new IntPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = secondProperty.Value<int>()
+                        Value = secondProperty.First!.Value<int>()
                     };
 
-                case "UAssetAPI.PropertyTypes.Objects.BoolPropertyData":
+                case "BoolPropertyData":
                     return new BoolPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = secondProperty.Value<bool>()
+                        Value = secondProperty.First!.Value<bool>()
                     };
 
-                case "UAssetAPI.PropertyTypes.Structs.GuidPropertyData":
+                case "GuidPropertyData":
                     return new GuidPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = new Guid(secondProperty.Value<string>()!)
+                        Value = new Guid(secondProperty.First!.Value<string>()!)
                     };
 
-                case "UAssetAPI.PropertyTypes.Structs.FloatPropertyData":
+                case "FloatPropertyData":
                     return new FloatPropertyData
                     {
                         Name = new FName(_generator!.Asset, secondProperty.Name),
-                        Value = secondProperty.Value<float>()
+                        Value = secondProperty.First!.Value<float>()
                     };
             }
 

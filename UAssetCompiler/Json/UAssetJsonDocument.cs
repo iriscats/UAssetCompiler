@@ -48,6 +48,8 @@ namespace UAssetCompiler.Json
         public string SuperObject;
 
         public string TemplateObject;
+
+        public string ObjectFlags;
     }
 
 
