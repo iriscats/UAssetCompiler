@@ -53,7 +53,7 @@ namespace UAssetCompiler
         {
             if (!Directory.Exists(ProjectBuildPath))
                 return;
-            
+
             Directory.Delete(this.ProjectBuildPath, true);
             Console.WriteLine(@"Clean Temp Directory Success! ：" + ProjectBuildPath);
         }
@@ -73,11 +73,19 @@ namespace UAssetCompiler
 
                 string ext = Path.GetExtension(item.Source);
                 string srcFilePath = item.Source;
+                Console.WriteLine("Process: "+ srcFilePath);
+
                 if (ext == ".json")
                 {
                     UAssetBinaryLinker.CreateUAsset(Path.Combine(this._projectPath, item.Source), destFilePath);
                 }
-                else
+
+                if (ext == ".locres")
+                {
+                    File.Copy(srcFilePath, destFilePath);
+                }
+
+                if (ext == ".uasset")
                 {
                     File.Copy(srcFilePath, destFilePath);
                     srcFilePath = Path.ChangeExtension(srcFilePath, "uexp");
