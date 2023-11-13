@@ -235,6 +235,7 @@ namespace UAssetCompiler.Json
             {
                 foreach (var propertyData in normalExport.Data)
                 {
+                    new FName(_asset, propertyData.GetType().Name);
                     switch (propertyData)
                     {
                         case ObjectPropertyData objectPropertyData:
@@ -248,22 +249,33 @@ namespace UAssetCompiler.Json
                                 {
                                     list.Add(mapKeyObjectPropertyData.Value);
                                 }
+
                                 if (mapItem.Value is ObjectPropertyData mapValueObjectPropertyData)
                                 {
                                     list.Add(mapValueObjectPropertyData.Value);
                                 }
                             }
+
                             break;
                     }
                 }
             }
+
             return list;
+        }
+
+        private string FindPackage()
+        {
+            return _asset.GetNameMapIndexList()
+                .First(x => x.ToString()!.EndsWith("/" + _asset.Exports[0].ObjectName))
+                .ToString()!;
         }
 
         public string SerializeJson()
         {
             ImportToJson();
             ExportToJson();
+            _doc.Package = FindPackage();
 
             JsonSerializerSettings jsonSettings = new JsonSerializerSettings
             {
@@ -297,8 +309,12 @@ namespace UAssetCompiler.Json
                 PackageSource = doc!.PackageSource,
                 PackageGuid = doc.PackageGuid
             };
-
             _asset.ClearNameIndexList();
+
+            var package = new FName(_asset, doc.Package);
+            new FName(_asset, "None");
+            Console.WriteLine(package);
+
             _asset.Imports = new List<Import>();
             _asset.Exports = new List<Export>();
 
@@ -353,7 +369,7 @@ namespace UAssetCompiler.Json
                     ClassIndex = FPackageIndex.FromRawIndex(TokenToIndex(origin.Class)),
                     Extras = new byte[] { 0x00, 0x00, 0x00, 0x00 },
                 };
-                
+
                 if (Enum.TryParse(origin.ObjectFlags, out EObjectFlags flags))
                 {
                     dest.ObjectFlags = flags;
@@ -361,7 +377,7 @@ namespace UAssetCompiler.Json
 
                 dest.CreateBeforeSerializationDependencies = new List<FPackageIndex>();
                 dest.CreateBeforeSerializationDependencies.AddRange(CollectAllDepends(origin));
-                
+
                 dest.SerializationBeforeCreateDependencies =
                     new List<FPackageIndex>() { dest.ClassIndex, dest.TemplateIndex };
 
@@ -384,7 +400,9 @@ namespace UAssetCompiler.Json
             {
                 new(_asset.Exports.Count, _asset.GetNameMapIndexList().Count)
             };
+
             _asset.AssetRegistryData = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+            _asset.NamesReferencedFromExportDataCount = _asset.GetNameMapIndexList().Count;
 
             return Asset;
         }

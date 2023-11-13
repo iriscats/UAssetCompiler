@@ -1,5 +1,4 @@
-﻿using System.Buffers.Text;
-using UAssetCompiler;
+﻿using UAssetCompiler;
 using UAssetCompiler.Json;
 
 void FileProcessMain()
@@ -57,6 +56,7 @@ if (args.Length > 0)
 //Console.ReadKey();
 
 
+
 var path =
     "/Users/bytedance/Project/kismet/UAssetCompiler/UAssetCompiler/data/Autocannon/Overclocks/OSB_Autocannon.uasset";
 
@@ -77,6 +77,3 @@ var uAsset = generator.FromJson(json);
 
 json = uAsset.SerializeJson(true);
 File.WriteAllText(path1, json);
-
-
-
