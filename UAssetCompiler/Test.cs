@@ -27,5 +27,12 @@ namespace UAssetCompiler
             Console.WriteLine(gen.MakeScript());
         }
 
+        public static string[] TestSingleFile()
+        {
+            var arr = new List<string>();
+            arr.Add(@"D:\mod\DRGPacker4.27\FSD-WindowsNoEditor\FSD\Content\WeaponsNTools\Autocannon\Overclocks\OSB_Autocannon.uasset.json");
+            return arr.ToArray();
+        }
+
     }
 }

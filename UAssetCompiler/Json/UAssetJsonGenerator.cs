@@ -18,6 +18,13 @@ namespace UAssetCompiler.Json
 
         public UAsset Asset => _asset;
 
+
+        public UAssetJsonGenerator()
+        {
+            _asset = new UAsset(EngineVersion.VER_UE4_27);
+            _doc = new UAssetJsonDocument();
+        }
+
         public UAssetJsonGenerator(string path)
         {
             _asset = new UAsset(path, EngineVersion.VER_UE4_27);
@@ -186,13 +193,13 @@ namespace UAssetCompiler.Json
                 switch (export)
                 {
                     case NormalExport normalExport:
-                    {
-                        var uacExport = new UacNormalExport(normalExport)
                         {
-                            ObjectName = name
-                        };
-                        _doc.Exports.Add(uacExport);
-                    }
+                            var uacExport = new UacNormalExport(normalExport)
+                            {
+                                ObjectName = name
+                            };
+                            _doc.Exports.Add(uacExport);
+                        }
                         break;
                     default:
                         break;
@@ -312,7 +319,7 @@ namespace UAssetCompiler.Json
             _asset.ClearNameIndexList();
 
             var package = new FName(_asset, doc.Package);
-            new FName(_asset, "None");
+
             Console.WriteLine(package);
 
             _asset.Imports = new List<Import>();
@@ -325,10 +332,14 @@ namespace UAssetCompiler.Json
 
             _asset.PackageFlags = EPackageFlags.PKG_FilterEditorOnly;
             _asset.FolderName = new FString("None");
+            new FName(_asset, "None");
+
             _asset.SoftPackageReferenceList = new List<FString>();
             _asset.doWeHaveWorldTileInfo = false;
             _asset.IsUnversioned = true;
             _asset.UseSeparateBulkDataFiles = true;
+            _asset.AdditionalPackagesToCook = new List<FString>();
+            _asset.ChunkIDs = new int[0];
 
             JsonToImport(doc);
             JsonToExport(doc);

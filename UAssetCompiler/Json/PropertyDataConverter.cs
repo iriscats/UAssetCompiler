@@ -30,13 +30,13 @@ namespace UAssetCompiler.Json.Converter
             if (_isSerialize)
             {
                 var result = objectType == typeof(PropertyData);
-                Console.WriteLine(@$"CanConvert: {objectType} result: {result}");
+                //Console.WriteLine(@$"CanConvert: {objectType} result: {result}");
                 return result;
             }
             else
             {
                 var result = false;
-                Console.WriteLine(@$"CanConvert: {objectType}");
+                //Console.WriteLine(@$"CanConvert: {objectType}");
                 switch (objectType.ToString())
                 {
                     case "UAssetAPI.PropertyTypes.Objects.ObjectPropertyData":
@@ -109,7 +109,7 @@ namespace UAssetCompiler.Json.Converter
         {
             var jsonObject = JObject.Load(reader);
             var typeName = jsonObject.GetValue("$type")!.Value<string>();
-            Console.WriteLine(@$"ReadJson: {typeName}");
+            //Console.WriteLine(@$"ReadJson: {typeName}");
 
             var secondProperty = jsonObject.Properties().ElementAt(1);
 

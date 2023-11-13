@@ -1,5 +1,9 @@
-﻿using UAssetCompiler;
+﻿using System.Reflection.Emit;
+using UAssetCompiler;
 using UAssetCompiler.Json;
+
+
+args = Test.TestSingleFile();
 
 void FileProcessMain()
 {
@@ -9,8 +13,23 @@ void FileProcessMain()
     switch (fileExtension)
     {
         case ".json":
-            var savePath = Path.ChangeExtension(filePath, "uasset");
-            UAssetBinaryLinker.CreateUAsset(filePath, savePath);
+
+            if (filePath.EndsWith(".uasset.json"))
+            {
+                filePath = Path.GetFullPath(filePath);
+                Console.WriteLine(filePath);
+                var generator = new UAssetJsonGenerator();
+
+                var json = File.ReadAllText(filePath);
+                var targetAsset = generator.FromJson(json);
+                targetAsset.Write(filePath.Replace(".uasset.json", ".uasset"));
+            }
+            else
+            {
+                var savePath = Path.ChangeExtension(filePath, "uasset");
+                UAssetBinaryLinker.CreateUAsset(filePath, savePath);
+            }
+
             break;
         case ".uasset":
             UAssetBinaryLinker.LoadAsset(filePath);
@@ -46,6 +65,11 @@ if (args.Length > 0)
         case "-u":
             UAssetPacker.Unpack(args[1]);
             break;
+        case "-d":
+            var generator = new UAssetJsonGenerator(args[1]);
+            var json = generator.SerializeJson();
+            File.WriteAllText(args[1] + ".json", json);
+            break;
         default:
             FileProcessMain();
             break;
@@ -56,24 +80,3 @@ if (args.Length > 0)
 //Console.ReadKey();
 
 
-
-var path =
-    "/Users/bytedance/Project/kismet/UAssetCompiler/UAssetCompiler/data/Autocannon/Overclocks/OSB_Autocannon.uasset";
-
-var path1 =
-    "/Users/bytedance/Project/kismet/UAssetCompiler/UAssetCompiler/data/Autocannon/Overclocks/OSB_Autocannon_new.json";
-
-UAssetBinaryLinker.LoadAsset(path);
-
-//var gen = new UAssetScriptGenerator();
-//Console.WriteLine(gen.MakeScript(path));
-
-var generator = new UAssetJsonGenerator(path);
-var json = generator.SerializeJson();
-File.WriteAllText(path + ".json", json);
-
-json = File.ReadAllText(path + ".json");
-var uAsset = generator.FromJson(json);
-
-json = uAsset.SerializeJson(true);
-File.WriteAllText(path1, json);
