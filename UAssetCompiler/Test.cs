@@ -30,7 +30,10 @@ namespace UAssetCompiler
         public static string[] TestSingleFile()
         {
             var arr = new List<string>();
-            arr.Add(@"D:\mod\DRGPacker4.27\FSD-WindowsNoEditor\FSD\Content\WeaponsNTools\Autocannon\Overclocks\OSB_Autocannon.uasset.json");
+            //arr.Add("-d");
+            //arr.Add(@"/Users/bytedance/Desktop/OSB_Autocannon.uasset.json");
+            //arr.Add("/Users/bytedance/Project/kismet/UAssetCompiler/UAssetCompiler/data/Autocannon/Overclocks/OC_Autocannon_DamageBig_U.uasset");
+            arr.Add(@"/Users/bytedance/Desktop/OC_Autocannon_DamageBig_U.uasset.json");
             return arr.ToArray();
         }
 

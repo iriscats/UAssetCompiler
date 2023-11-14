@@ -28,7 +28,6 @@ namespace UAssetCompiler.Json
         public UAssetJsonGenerator(string path)
         {
             _asset = new UAsset(path, EngineVersion.VER_UE4_27);
-
             _doc = new UAssetJsonDocument(_asset)
             {
                 Package = "",
@@ -193,13 +192,13 @@ namespace UAssetCompiler.Json
                 switch (export)
                 {
                     case NormalExport normalExport:
+                    {
+                        var uacExport = new UacNormalExport(normalExport)
                         {
-                            var uacExport = new UacNormalExport(normalExport)
-                            {
-                                ObjectName = name
-                            };
-                            _doc.Exports.Add(uacExport);
-                        }
+                            ObjectName = name
+                        };
+                        _doc.Exports.Add(uacExport);
+                    }
                         break;
                     default:
                         break;
@@ -237,12 +236,15 @@ namespace UAssetCompiler.Json
 
         private List<FPackageIndex> CollectAllDepends(UacExport export)
         {
+            //TODO:
+            new FName(_asset, "IntProperty");
+            new FName(_asset, "BoolProperty");
             var list = new List<FPackageIndex>();
             if (export is UacNormalExport normalExport)
             {
                 foreach (var propertyData in normalExport.Data)
                 {
-                    new FName(_asset, propertyData.GetType().Name);
+                    new FName(_asset, propertyData.GetType().Name.Replace("Data", ""));
                     switch (propertyData)
                     {
                         case ObjectPropertyData objectPropertyData:
@@ -351,11 +353,11 @@ namespace UAssetCompiler.Json
                 NullValueHandling = NullValueHandling.Include,
                 FloatParseHandling = FloatParseHandling.Double,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ContractResolver = new UAssetContractResolver(toBeFilled),
+                ContractResolver = new MyUAssetContractResolver(_asset),
                 Converters = new List<JsonConverter>()
                 {
                     new FSignedZeroJsonConverter(),
-                    new FNameJsonConverter(null),
+                    //new MyFNameJsonConverter(_asset),
                     new FStringTableJsonConverter(),
                     new FStringJsonConverter(),
                     new FPackageIndexJsonConverter(),
