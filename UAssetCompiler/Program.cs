@@ -3,7 +3,7 @@ using UAssetCompiler;
 using UAssetCompiler.Json;
 
 
-args = Test.TestSingleFile();
+//args = Test.TestSingleFile();
 
 void FileProcessMain()
 {

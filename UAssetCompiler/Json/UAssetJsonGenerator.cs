@@ -45,7 +45,7 @@ namespace UAssetCompiler.Json
         private int FindExport(string token)
         {
             return _asset.Exports.Select((export, index) => new { Export = export, Index = index })
-                .First(x => x.Export.ObjectName.ToString() == token).Index;
+                .First(x => x.Export.ObjectName.ToString() == token).Index + 1;
         }
 
         public int TokenToIndex(string token)
@@ -192,13 +192,13 @@ namespace UAssetCompiler.Json
                 switch (export)
                 {
                     case NormalExport normalExport:
-                    {
-                        var uacExport = new UacNormalExport(normalExport)
                         {
-                            ObjectName = name
-                        };
-                        _doc.Exports.Add(uacExport);
-                    }
+                            var uacExport = new UacNormalExport(normalExport)
+                            {
+                                ObjectName = name
+                            };
+                            _doc.Exports.Add(uacExport);
+                        }
                         break;
                     default:
                         break;
@@ -236,15 +236,12 @@ namespace UAssetCompiler.Json
 
         private List<FPackageIndex> CollectAllDepends(UacExport export)
         {
-            //TODO:
-            new FName(_asset, "IntProperty");
-            new FName(_asset, "BoolProperty");
             var list = new List<FPackageIndex>();
             if (export is UacNormalExport normalExport)
             {
                 foreach (var propertyData in normalExport.Data)
                 {
-                    new FName(_asset, propertyData.GetType().Name.Replace("Data", ""));
+
                     switch (propertyData)
                     {
                         case ObjectPropertyData objectPropertyData:
@@ -342,6 +339,7 @@ namespace UAssetCompiler.Json
             _asset.UseSeparateBulkDataFiles = true;
             _asset.AdditionalPackagesToCook = new List<FString>();
             _asset.ChunkIDs = new int[0];
+            _asset.doWeHaveSoftPackageReferences = false;
 
             JsonToImport(doc);
             JsonToExport(doc);
@@ -374,7 +372,6 @@ namespace UAssetCompiler.Json
                 {
                     ObjectName = new FName(_asset, origin!.ObjectName),
                     Data = origin.Data,
-                    bIsAsset = true,
                     bNotAlwaysLoadedForEditorGame = true,
                     OuterIndex = FPackageIndex.FromRawIndex(TokenToIndex(origin.OuterObject)),
                     SuperIndex = FPackageIndex.FromRawIndex(TokenToIndex(origin.SuperObject)),
@@ -382,6 +379,11 @@ namespace UAssetCompiler.Json
                     ClassIndex = FPackageIndex.FromRawIndex(TokenToIndex(origin.Class)),
                     Extras = new byte[] { 0x00, 0x00, 0x00, 0x00 },
                 };
+
+                if (i == 0)
+                {
+                    dest.bIsAsset = true;
+                }
 
                 if (Enum.TryParse(origin.ObjectFlags, out EObjectFlags flags))
                 {
