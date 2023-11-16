@@ -192,13 +192,13 @@ namespace UAssetCompiler.Json
                 switch (export)
                 {
                     case NormalExport normalExport:
+                    {
+                        var uacExport = new UacNormalExport(normalExport)
                         {
-                            var uacExport = new UacNormalExport(normalExport)
-                            {
-                                ObjectName = name
-                            };
-                            _doc.Exports.Add(uacExport);
-                        }
+                            ObjectName = name
+                        };
+                        _doc.Exports.Add(uacExport);
+                    }
                         break;
                     default:
                         break;
@@ -241,7 +241,6 @@ namespace UAssetCompiler.Json
             {
                 foreach (var propertyData in normalExport.Data)
                 {
-
                     switch (propertyData)
                     {
                         case ObjectPropertyData objectPropertyData:
@@ -316,11 +315,8 @@ namespace UAssetCompiler.Json
                 PackageGuid = doc.PackageGuid
             };
             _asset.ClearNameIndexList();
-
-            var package = new FName(_asset, doc.Package);
-
-            Console.WriteLine(package);
-
+            _asset.AddNameReference(doc.Package);
+            
             _asset.Imports = new List<Import>();
             _asset.Exports = new List<Export>();
 
@@ -331,20 +327,19 @@ namespace UAssetCompiler.Json
 
             _asset.PackageFlags = EPackageFlags.PKG_FilterEditorOnly;
             _asset.FolderName = new FString("None");
-            new FName(_asset, "None");
+            _asset.AddNameReference("None");
 
             _asset.SoftPackageReferenceList = new List<FString>();
-            _asset.doWeHaveWorldTileInfo = false;
+            _asset.ChunkIDs = Array.Empty<int>();
             _asset.IsUnversioned = true;
             _asset.UseSeparateBulkDataFiles = true;
-            _asset.AdditionalPackagesToCook = new List<FString>();
-            _asset.ChunkIDs = new int[0];
-            _asset.doWeHaveSoftPackageReferences = false;
+            _asset.SetDoWeHaveWorldTileInfo(false);
+            _asset.SetAdditionalPackagesToCook(new List<FString>());
+            _asset.SetDoWeHaveSoftPackageReferences(false);
 
             JsonToImport(doc);
             JsonToExport(doc);
-
-            Dictionary<FName, string> toBeFilled = new Dictionary<FName, string>();
+            
             doc = JsonConvert.DeserializeObject<UAssetJsonDocument>(json, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,
@@ -355,7 +350,6 @@ namespace UAssetCompiler.Json
                 Converters = new List<JsonConverter>()
                 {
                     new FSignedZeroJsonConverter(),
-                    //new MyFNameJsonConverter(_asset),
                     new FStringTableJsonConverter(),
                     new FStringJsonConverter(),
                     new FPackageIndexJsonConverter(),
@@ -364,9 +358,9 @@ namespace UAssetCompiler.Json
                 }
             });
 
-            for (int i = 0; i < doc!.Exports.Count(); i++)
+            for (var i = 0; i < doc!.Exports.Count; i++)
             {
-                var origin = doc!.Exports[i] as UacNormalExport;
+                var origin = doc.Exports[i] as UacNormalExport;
 
                 var dest = new NormalExport
                 {
@@ -392,9 +386,8 @@ namespace UAssetCompiler.Json
 
                 dest.CreateBeforeSerializationDependencies = new List<FPackageIndex>();
                 dest.CreateBeforeSerializationDependencies.AddRange(CollectAllDepends(origin));
-
                 dest.SerializationBeforeCreateDependencies =
-                    new List<FPackageIndex>() { dest.ClassIndex, dest.TemplateIndex };
+                    new List<FPackageIndex> { dest.ClassIndex, dest.TemplateIndex };
 
                 dest.CreateBeforeCreateDependencies = new List<FPackageIndex>();
                 if (dest.OuterIndex.Index != 0)
@@ -417,7 +410,7 @@ namespace UAssetCompiler.Json
             };
 
             _asset.AssetRegistryData = new byte[] { 0x00, 0x00, 0x00, 0x00 };
-            _asset.NamesReferencedFromExportDataCount = _asset.GetNameMapIndexList().Count;
+            _asset.CountExportData();
 
             return Asset;
         }
