@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Text;
+using UAssetCompiler.Json;
 using UAssetCompiler.Utils;
 
 namespace UAssetCompiler
@@ -73,11 +74,22 @@ namespace UAssetCompiler
 
                 string ext = Path.GetExtension(item.Source);
                 string srcFilePath = item.Source;
-                Console.WriteLine("Process: "+ srcFilePath);
+                Console.WriteLine("Process: " + srcFilePath);
 
                 if (ext == ".json")
                 {
-                    UAssetBinaryLinker.CreateUAsset(Path.Combine(this._projectPath, item.Source), destFilePath);
+                    var filePath = Path.Combine(this._projectPath, item.Source);
+                    if (item.Source.EndsWith(".uasset.json"))
+                    {
+                        var generator = new UAssetJsonGenerator();
+                        var json = File.ReadAllText(filePath);
+                        var targetAsset = generator.FromJson(json);
+                        targetAsset.Write(destFilePath);
+                    }
+                    else
+                    {
+                        UAssetBinaryLinker.CreateUAsset(filePath, destFilePath);
+                    }
                 }
 
                 if (ext == ".locres")
