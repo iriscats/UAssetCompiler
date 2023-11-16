@@ -15,6 +15,7 @@ namespace UAssetCompiler.Json
     {
         private UAsset _asset;
         private readonly UAssetJsonDocument _doc;
+        private ImportConverter _importConverter = null;
 
         public UAsset Asset => _asset;
 
@@ -34,7 +35,6 @@ namespace UAssetCompiler.Json
             };
         }
 
-        private Import? GetImport(int index) => index > -1 ? null : _asset.Imports[index * -1 - 1];
         private UacExport? GetExport(int index) => index < 1 ? null : _doc.Exports[index - 1];
 
         private int FindImport(string token)
@@ -73,7 +73,7 @@ namespace UAssetCompiler.Json
         {
             if (index < 0)
             {
-                var import = GetImport(index);
+                var import = _asset.GetImport(index);
                 return "Import:" + import!.ObjectName;
             }
 
@@ -83,72 +83,6 @@ namespace UAssetCompiler.Json
             }
 
             return "Object";
-        }
-
-        private string ImportToToken(Import import)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append($"{import.ObjectName}({import.ClassName})");
-
-            var outerIndex = import.OuterIndex;
-            var outerImport = GetImport(outerIndex.Index);
-            builder.Append($"->{outerImport!.ObjectName}");
-
-            return builder.ToString();
-        }
-
-        private void TokenToImport(string token)
-        {
-            Regex regex = new Regex(@"([\w_]+)\(([\w_]+)\)->([\w_/]+)");
-            Match match = regex.Match(token);
-
-            if (match.Success)
-            {
-                string objName = match.Groups[1].Value;
-                string className = match.Groups[2].Value;
-                string packageName = match.Groups[3].Value;
-
-                var result = _asset.Imports
-                    .Select((import, index) => new { Import = import, Index = index })
-                    .FirstOrDefault(x => x.Import.ObjectName.ToString() == packageName);
-
-                int outerIndex = 0;
-                if (result is null)
-                {
-                    Import outerImport = new Import(
-                        new FName(_asset, "/Script/CoreUObject"),
-                        new FName(_asset, "Package"),
-                        new FPackageIndex(),
-                        new FName(_asset, packageName),
-                        false
-                    );
-                    outerIndex = _asset.AddImport(outerImport).Index;
-                }
-                else
-                {
-                    outerIndex = -result.Index - 1;
-                }
-
-                if (className == "Class")
-                {
-                    packageName = "/Script/CoreUObject";
-                }
-                else
-                {
-                    packageName = "/Script/FSD";
-                }
-
-                _asset.Imports.Add(new Import(
-                    new FName(_asset, packageName),
-                    new FName(_asset, className),
-                    new FPackageIndex(outerIndex),
-                    new FName(_asset, objName),
-                    false
-                ));
-                return;
-            }
-
-            throw new Exception("Token Error:" + token);
         }
 
         private Export TokenToExport(UacExport token)
@@ -161,8 +95,8 @@ namespace UAssetCompiler.Json
 
         private void ImportToJson()
         {
+            _importConverter = new ImportConverter(_asset);
             var imports = new List<string>();
-
             foreach (var import in _asset.Imports)
             {
                 if (import.OuterIndex.Index == 0)
@@ -170,7 +104,7 @@ namespace UAssetCompiler.Json
                     continue;
                 }
 
-                imports.Add(ImportToToken(import));
+                imports.Add(_importConverter.ImportToToken(import));
             }
 
             _doc.Imports = imports;
@@ -218,16 +152,20 @@ namespace UAssetCompiler.Json
             }
         }
 
-        private void JsonToImport(UAssetJsonDocument doc)
+        private void MakeImports(UAssetJsonDocument doc)
         {
+            _importConverter = new ImportConverter(_asset);
+            _asset.Imports = new List<Import>();
+
             foreach (var import in doc!.Imports)
             {
-                TokenToImport(import);
+                _importConverter.TokenToImports(import);
             }
         }
 
         private void JsonToExport(UAssetJsonDocument doc)
         {
+            _asset.Exports = new List<Export>();
             foreach (var export in doc!.Exports)
             {
                 _asset.Exports.Add(TokenToExport(export));
@@ -269,18 +207,12 @@ namespace UAssetCompiler.Json
             return list;
         }
 
-        private string FindPackage()
-        {
-            return _asset.GetNameMapIndexList()
-                .First(x => x.ToString()!.EndsWith("/" + _asset.Exports[0].ObjectName))
-                .ToString()!;
-        }
 
         public string SerializeJson()
         {
             ImportToJson();
             ExportToJson();
-            _doc.Package = FindPackage();
+            _doc.Package = _asset.FindMainPackage();
 
             JsonSerializerSettings jsonSettings = new JsonSerializerSettings
             {
@@ -316,9 +248,6 @@ namespace UAssetCompiler.Json
             };
             _asset.ClearNameIndexList();
             _asset.AddNameReference(doc.Package);
-            
-            _asset.Imports = new List<Import>();
-            _asset.Exports = new List<Export>();
 
             _asset.LegacyFileVersion = -7;
             _asset.UsesEventDrivenLoader = true;
@@ -337,9 +266,10 @@ namespace UAssetCompiler.Json
             _asset.SetAdditionalPackagesToCook(new List<FString>());
             _asset.SetDoWeHaveSoftPackageReferences(false);
 
-            JsonToImport(doc);
+
+            MakeImports(doc);
             JsonToExport(doc);
-            
+
             doc = JsonConvert.DeserializeObject<UAssetJsonDocument>(json, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,

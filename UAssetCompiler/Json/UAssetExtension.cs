@@ -6,6 +6,16 @@ namespace UAssetCompiler.Json;
 
 public static class UAssetExtension
 {
+    public static Import? GetImport(this UAsset uAsset, int index) =>
+        index > -1 ? null : uAsset.Imports[index * -1 - 1];
+
+    public static string FindMainPackage(this UAsset uAsset)
+    {
+        return uAsset.GetNameMapIndexList()
+            .First(x => x.ToString()!.EndsWith("/" + uAsset.Exports[0].ObjectName))
+            .ToString()!;
+    }
+
     public static int AddNameReference(this UAsset uAsset, string value)
     {
         return uAsset.AddNameReference(new FString(value));
@@ -31,7 +41,7 @@ public static class UAssetExtension
             BindingFlags.Instance | BindingFlags.NonPublic);
         field!.SetValue(uAsset, list);
     }
-    
+
     public static int CountExportData(this UAsset uAsset)
     {
         int count = uAsset.GetNameMapIndexList().Count;
