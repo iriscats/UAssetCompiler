@@ -31,7 +31,6 @@ namespace UAssetCompiler.Json.Converter
             {
                 var result = objectType == typeof(PropertyData);
                 //Console.WriteLine(@$"CanConvert: {objectType} result: {result}");
-
                 return result;
             }
             else
@@ -112,15 +111,14 @@ namespace UAssetCompiler.Json.Converter
             var typeName = jsonObject.GetValue("$type")!.Value<string>();
             //Console.WriteLine(@$"ReadJson: {typeName}");
 
-            if (typeName!.ToString().StartsWith("UAssetAPI.PropertyTypes"))
+            if (typeName!.StartsWith("UAssetAPI.PropertyTypes"))
             {
-
                 var list = typeName.Split(".");
-                new FName(_generator!.Asset, list[3].Replace("Data, UAssetAPI", ""));
+                _generator!.Asset.AddNameReference(list[3].Replace("Data, UAssetAPI", "")) ;
             }
             else if (typeName.EndsWith("PropertyData"))
             {
-                new FName(_generator!.Asset, typeName.Replace("Data", ""));
+                _generator!.Asset.AddNameReference(typeName.Replace("Data", "")) ;
             }
 
 

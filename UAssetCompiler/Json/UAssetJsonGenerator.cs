@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System.Text;
-using System.Text.RegularExpressions;
 using UAssetAPI;
 using UAssetAPI.ExportTypes;
 using UAssetAPI.JSON;
@@ -15,7 +13,7 @@ namespace UAssetCompiler.Json
     {
         private UAsset _asset;
         private readonly UAssetJsonDocument _doc;
-        private ImportConverter _importConverter = null;
+        private ImportConverter? _importConverter;
 
         public UAsset Asset => _asset;
 
@@ -29,24 +27,10 @@ namespace UAssetCompiler.Json
         public UAssetJsonGenerator(string path)
         {
             _asset = new UAsset(path, EngineVersion.VER_UE4_27);
-            _doc = new UAssetJsonDocument(_asset)
-            {
-                Package = "",
-            };
+            _doc = new UAssetJsonDocument(_asset);
         }
 
         private UacExport? GetExport(int index) => index < 1 ? null : _doc.Exports[index - 1];
-
-        private int FindImport(string token)
-        {
-            return _asset.SearchForImport(new FName(_asset, token));
-        }
-
-        private int FindExport(string token)
-        {
-            return _asset.Exports.Select((export, index) => new { Export = export, Index = index })
-                .First(x => x.Export.ObjectName.ToString() == token).Index + 1;
-        }
 
         public int TokenToIndex(string token)
         {
@@ -58,12 +42,12 @@ namespace UAssetCompiler.Json
 
             if (tokenArr[0] == "Import")
             {
-                return FindImport(tokenArr[1]);
+                return _asset.SearchForImport(new FName(_asset, token));
             }
 
             if (tokenArr[0] == "Export")
             {
-                return FindExport(tokenArr[1]);
+                return _asset.GetExportIndex(tokenArr[1]);
             }
 
             throw new NotImplementedException();
@@ -83,14 +67,6 @@ namespace UAssetCompiler.Json
             }
 
             return "Object";
-        }
-
-        private Export TokenToExport(UacExport token)
-        {
-            return new NormalExport(_asset, null)
-            {
-                ObjectName = new FName(_asset, token.ObjectName)
-            };
         }
 
         private void ImportToJson()
@@ -157,18 +133,21 @@ namespace UAssetCompiler.Json
             _importConverter = new ImportConverter(_asset);
             _asset.Imports = new List<Import>();
 
-            foreach (var import in doc!.Imports)
+            foreach (var import in doc.Imports)
             {
                 _importConverter.TokenToImports(import);
             }
         }
 
-        private void JsonToExport(UAssetJsonDocument doc)
+        private void PrepareExports(UAssetJsonDocument doc)
         {
             _asset.Exports = new List<Export>();
-            foreach (var export in doc!.Exports)
+            foreach (var export in doc.Exports)
             {
-                _asset.Exports.Add(TokenToExport(export));
+                _asset.Exports.Add(new NormalExport(_asset, null)
+                {
+                    ObjectName = new FName(_asset, export.ObjectName)
+                });
             }
         }
 
@@ -206,13 +185,11 @@ namespace UAssetCompiler.Json
 
             return list;
         }
-
-
+        
         public string SerializeJson()
         {
             ImportToJson();
             ExportToJson();
-            _doc.Package = _asset.FindMainPackage();
 
             JsonSerializerSettings jsonSettings = new JsonSerializerSettings
             {
@@ -240,35 +217,16 @@ namespace UAssetCompiler.Json
         public UAsset FromJson(string json)
         {
             var doc = JsonConvert.DeserializeObject<UAssetJsonDocument>(json);
-
             _asset = new UAsset(EngineVersion.VER_UE4_27)
             {
                 PackageSource = doc!.PackageSource,
                 PackageGuid = doc.PackageGuid
             };
-            _asset.ClearNameIndexList();
+            _asset.MakeUAssetHeader();
             _asset.AddNameReference(doc.Package);
 
-            _asset.LegacyFileVersion = -7;
-            _asset.UsesEventDrivenLoader = true;
-            _asset.WillSerializeNameHashes = true;
-            _asset.DependsMap = new List<int[]>();
-
-            _asset.PackageFlags = EPackageFlags.PKG_FilterEditorOnly;
-            _asset.FolderName = new FString("None");
-            _asset.AddNameReference("None");
-
-            _asset.SoftPackageReferenceList = new List<FString>();
-            _asset.ChunkIDs = Array.Empty<int>();
-            _asset.IsUnversioned = true;
-            _asset.UseSeparateBulkDataFiles = true;
-            _asset.SetDoWeHaveWorldTileInfo(false);
-            _asset.SetAdditionalPackagesToCook(new List<FString>());
-            _asset.SetDoWeHaveSoftPackageReferences(false);
-
-
             MakeImports(doc);
-            JsonToExport(doc);
+            PrepareExports(doc);
 
             doc = JsonConvert.DeserializeObject<UAssetJsonDocument>(json, new JsonSerializerSettings
             {
@@ -327,19 +285,9 @@ namespace UAssetCompiler.Json
 
                 _asset.Exports[i] = dest;
             }
-
-            _asset.DependsMap = new List<int[]>();
-            for (int i = 0; i < _asset.Exports.Count; i++)
-            {
-                _asset.DependsMap.Add(new int[] { });
-            }
-
-            _asset.Generations = new List<FGenerationInfo>
-            {
-                new(_asset.Exports.Count, _asset.GetNameMapIndexList().Count)
-            };
-
-            _asset.AssetRegistryData = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+            
+            _asset.MakeDependsMap();
+            _asset.MakeGenerations();
             _asset.CountExportData();
 
             return Asset;

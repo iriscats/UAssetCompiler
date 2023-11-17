@@ -21,6 +21,7 @@ namespace UAssetCompiler.Json
         {
             PackageGuid = asset.PackageGuid;
             PackageSource = asset.PackageSource;
+            Package = asset.FindMainPackage();
         }
 
         public string Package = "";
@@ -59,7 +60,7 @@ namespace UAssetCompiler.Json
         {
         }
 
-        public UacFunctionExport(FunctionExport functionExport) 
+        public UacFunctionExport(FunctionExport functionExport)
         {
             LoadedProperties = functionExport.LoadedProperties.ToList();
             ScriptBytecode = functionExport.ScriptBytecode.ToList();
@@ -75,7 +76,7 @@ namespace UAssetCompiler.Json
         public UacNormalExport()
         {
         }
-        
+
         public UacNormalExport(NormalExport normalExport)
         {
             Data = normalExport.Data;
