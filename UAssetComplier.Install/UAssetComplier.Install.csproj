@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>UAssetCompiler.Install</AssemblyName>
+    <RootNamespace>UAssetCompiler.Install</RootNamespace>
   </PropertyGroup>
 
 </Project>
