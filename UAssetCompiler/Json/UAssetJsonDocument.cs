@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UAssetAPI;
+﻿using UAssetAPI;
 using UAssetAPI.ExportTypes;
 using UAssetAPI.FieldTypes;
 using UAssetAPI.Kismet.Bytecode;
@@ -51,12 +46,22 @@ namespace UAssetCompiler.Json
         public string TemplateObject;
 
         public string ObjectFlags;
+
+        public UacExport()
+        {
+            ObjectName = "";
+            OuterObject = "";
+            Class = "";
+            SuperObject = "";
+            TemplateObject = "";
+            ObjectFlags = "";
+        }
     }
 
 
     public class UacFunctionExport : UacExport
     {
-        public UacFunctionExport()
+        public UacFunctionExport(): base()
         {
         }
 
@@ -82,6 +87,6 @@ namespace UAssetCompiler.Json
             Data = normalExport.Data;
         }
 
-        public List<PropertyData> Data;
+        public List<PropertyData> Data = new List<PropertyData>();
     }
 }

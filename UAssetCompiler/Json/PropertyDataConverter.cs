@@ -4,7 +4,7 @@ using UAssetAPI.PropertyTypes.Objects;
 using UAssetAPI.PropertyTypes.Structs;
 using UAssetAPI.UnrealTypes;
 
-namespace UAssetCompiler.Json.Converter
+namespace UAssetCompiler.Json
 {
     class PropertyDataConverter : JsonConverter
     {

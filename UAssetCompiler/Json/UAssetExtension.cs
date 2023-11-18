@@ -10,6 +10,10 @@ public static class UAssetExtension
     public static Import? GetImport(this UAsset uAsset, int index) =>
         index > -1 ? null : uAsset.Imports[index * -1 - 1];
 
+    public static Export? GetExport(this UAsset uAsset, int index) => 
+        index < 1 ? null : uAsset.Exports[index - 1];
+
+
     public static int GetExportIndex(this UAsset uAsset, string objectName) =>
         uAsset.Exports.Select((export, index) => new { Export = export, Index = index })
             .First(x => x.Export.ObjectName.ToString() == objectName).Index + 1;
@@ -20,7 +24,7 @@ public static class UAssetExtension
             .First(x => x.ToString()!.EndsWith("/" + uAsset.Exports[0].ObjectName))
             .ToString()!;
     }
-    
+
     public static void MakeDependsMap(this UAsset uAsset)
     {
         uAsset.DependsMap = new List<int[]>();

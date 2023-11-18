@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UAssetAPI;
-using UAssetAPI.JSON;
 using UAssetAPI.UnrealTypes;
 
 namespace UAssetCompiler.Json;

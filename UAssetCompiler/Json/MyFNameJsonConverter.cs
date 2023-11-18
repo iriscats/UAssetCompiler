@@ -8,7 +8,7 @@ public class MyFNameJsonConverter : JsonConverter
 {
     private UAsset _asset;
 
-    public MyFNameJsonConverter(UAsset asset) : base()
+    public MyFNameJsonConverter(UAsset asset)
     {
         _asset = asset;
     }
@@ -22,10 +22,7 @@ public class MyFNameJsonConverter : JsonConverter
     {
     }
 
-    public override bool CanRead
-    {
-        get { return true; }
-    }
+    public override bool CanRead => true;
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
