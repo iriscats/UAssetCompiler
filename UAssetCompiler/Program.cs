@@ -2,8 +2,11 @@
 using UAssetCompiler;
 using UAssetCompiler.Json;
 
+Test.TestUAssetScriptGenerator();
 
-//args = Test.TestSingleFile();
+return;
+
+args = Test.TestSingleFile();
 
 void FileProcessMain()
 {

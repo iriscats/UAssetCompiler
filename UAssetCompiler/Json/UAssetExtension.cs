@@ -10,7 +10,7 @@ public static class UAssetExtension
     public static Import? GetImport(this UAsset uAsset, int index) =>
         index > -1 ? null : uAsset.Imports[index * -1 - 1];
 
-    public static Export? GetExport(this UAsset uAsset, int index) => 
+    public static Export? GetExport(this UAsset uAsset, int index) =>
         index < 1 ? null : uAsset.Exports[index - 1];
 
 
@@ -20,8 +20,24 @@ public static class UAssetExtension
 
     public static string FindMainPackage(this UAsset uAsset)
     {
+        var export = uAsset.Exports.First(x =>
+            x.GetType() == typeof(NormalExport) ||
+            x.GetType() == typeof(ClassExport));
+
+        string mainExportName = "";
+        switch (export)
+        {
+            case ClassExport classExport:
+                var name = classExport!.ObjectName.ToString()!;
+                mainExportName = name.Substring(0, name.Length - 2);
+                break;
+            case NormalExport normalExport:
+                mainExportName = normalExport!.ObjectName.ToString()!;
+                break;
+        }
+
         return uAsset.GetNameMapIndexList()
-            .First(x => x.ToString()!.EndsWith("/" + uAsset.Exports[0].ObjectName))
+            .First(x => x.ToString()!.EndsWith("/" + mainExportName))
             .ToString()!;
     }
 

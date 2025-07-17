@@ -32,7 +32,6 @@ namespace UAssetCompiler.Json
         public List<UacExport> Exports = new();
     }
 
-
     public class UacExport
     {
         public string ObjectName;
@@ -58,10 +57,16 @@ namespace UAssetCompiler.Json
         }
     }
 
+    public class UacClassExport : UacExport
+    {
+        public UacClassExport(ClassExport classExport)
+        {
+        }
+    }
 
     public class UacFunctionExport : UacExport
     {
-        public UacFunctionExport(): base()
+        public UacFunctionExport() : base()
         {
         }
 
@@ -69,11 +74,24 @@ namespace UAssetCompiler.Json
         {
             LoadedProperties = functionExport.LoadedProperties.ToList();
             ScriptBytecode = functionExport.ScriptBytecode.ToList();
+            //Field = functionExport.Field;
         }
 
         public List<FProperty> LoadedProperties;
 
         public List<KismetExpression> ScriptBytecode;
+
+        //public UField Field;
+    }
+
+    public class UacRawExport : UacExport
+    {
+        public Byte[] Data;
+
+        public UacRawExport(RawExport rawExport)
+        {
+            Data = rawExport.Data;
+        }
     }
 
     public class UacNormalExport : UacExport

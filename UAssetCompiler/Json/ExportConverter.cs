@@ -66,14 +66,22 @@ public class ExportConverter
         return list;
     }
 
-
     public UacExport ToUacExport(Export export)
     {
         UacExport uacExport;
         switch (export)
         {
+            case FunctionExport functionExport:
+                uacExport = new UacFunctionExport(functionExport);
+                break;
+            case ClassExport classExport:
+                uacExport = new UacClassExport(classExport);
+                break;
             case NormalExport normalExport:
                 uacExport = new UacNormalExport(normalExport);
+                break;
+            case RawExport rawExport:
+                uacExport = new UacRawExport(rawExport);
                 break;
             default:
                 throw new NotImplementedException("Export To Json");
@@ -87,7 +95,6 @@ public class ExportConverter
         uacExport.ObjectFlags = export.ObjectFlags.ToString();
         return uacExport;
     }
-
 
     public Export ToExport(UacExport uacExport)
     {
@@ -110,12 +117,9 @@ public class ExportConverter
             dest.ObjectFlags = flags;
         }
 
-        dest.CreateBeforeSerializationDependencies = new List<FPackageIndex>();
         dest.CreateBeforeSerializationDependencies.AddRange(CollectAllDepends(origin));
         dest.SerializationBeforeCreateDependencies =
             new List<FPackageIndex> { dest.ClassIndex, dest.TemplateIndex };
-
-        dest.CreateBeforeCreateDependencies = new List<FPackageIndex>();
         if (dest.OuterIndex.Index != 0)
         {
             dest.CreateBeforeCreateDependencies.Add(dest.OuterIndex);

@@ -77,7 +77,7 @@ namespace UAssetCompiler.Json
 
                 case NamePropertyData namePropertyData:
                     writer.WritePropertyName(namePropertyData.Name.ToString()!);
-                    writer.WriteValue(namePropertyData.Value);
+                    writer.WriteValue(namePropertyData.Value.ToString());
                     break;
 
                 case IntPropertyData intPropertyData:
